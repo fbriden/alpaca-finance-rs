@@ -1,0 +1,20 @@
+[package]
+name = "alpaca-finance"
+version = "0.1.0"
+authors = [ "Fred Briden <fred.briden@gmail.com>" ]
+license = "MIT"
+description = "An API to interact with alpaca.markets"
+keywords = [ "alpaca", "finance", "stocks" ]
+readme = "README.md"
+edition = "2018"
+
+include = [ "Cargo.toml", "LICENSE", "README.md", "src/**/*.rs" ]
+
+repository = "https://github.com/fbriden/alpaca-finance-rs"
+homepage = "https://github.com/fbriden/alpaca-finance-rs"
+
+[dependencies]
+market-finance = { version = "0.1" }
+reqwest = { version = "0.10", features = [ "json" ] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

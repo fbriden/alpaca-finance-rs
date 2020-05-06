@@ -12,6 +12,9 @@ pub enum InnerError {
    #[snafu(display("Alpaca call failed. '{}' returned a {} result.", url, status))]
    CallFailed { url: String, status: u16 },
 
+   #[snafu(display("An internal error occurred"))]
+   InternalJSON { source: serde_json::Error },
+
    #[snafu(display("An internal error occurred - please report that '{}' cannot be parsed because {}", url, source.to_string()))]
    InternalURL { url: String, source: url::ParseError },
 
@@ -32,6 +35,9 @@ pub enum InnerError {
 
    #[snafu(display("Alpaca call failed for unknown reason."))]
    RequestFailed { source: reqwest::Error },
+
+   #[snafu(display("Alpaca websocket connection failed for unknown reason."))]
+   StreamingFailed { source: tungstenite::Error },
 
    #[snafu(display("An unexpected error occurred"))]
    Unknown

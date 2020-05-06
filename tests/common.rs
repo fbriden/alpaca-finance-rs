@@ -18,8 +18,8 @@ pub async fn build_alpaca() -> Alpaca {
 
 pub fn build_mock(verb: &'static str, path: &'static str) -> Mock {
    mock(verb, path)
-      .with_header("APCA-API-KEY-ID", "asdf")
-      .with_header("APCA-API-SECRET-KEY", "asdf")
+      .with_header("APCA-API-KEY-ID", KEY_ID)
+      .with_header("APCA-API-SECRET-KEY", SECRET)
       .with_header("content-type", "application/json")
       .with_status(200)
 }

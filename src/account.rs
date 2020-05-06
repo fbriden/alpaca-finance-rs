@@ -1,3 +1,4 @@
+use chrono::{ DateTime, Utc };
 use reqwest::Method;
 use serde::Deserialize;
 use snafu::{ ensure, ResultExt };
@@ -16,22 +17,22 @@ pub enum AccountStatus {
    /// The account information is being updated.
    AccountUpdated,
 
-   // The account is active for trading.
+   /// The account is active for trading.
    Active,
 
-   // The final account approval is pending.
+   /// The final account approval is pending.
    ApprovalPending,
 
    /// The account is onboarding.
    Onboarding,
 
-   // The account application has been rejected.
+   /// The account application has been rejected.
    Rejected,
 
-   // The account application submission failed for some reason.
+   /// The account application submission failed for some reason.
    SubmissionFailed,
 
-   // The account application has been submitted for review.
+   /// The account application has been submitted for review.
    Submitted
 }
 
@@ -70,6 +71,9 @@ pub struct Account {
    /// Current available $ buying power
    #[serde(deserialize_with = "util::to_f64")] pub buying_power: f64,
 
+   /// Timestamp this account was created at
+   #[serde(rename = "created_at")] pub created: DateTime<Utc>,
+
    /// If true, the account activity by user is prohibited.
    #[serde(rename = "account_blocked")] pub is_account_blocked:  bool,
 
@@ -90,6 +94,16 @@ pub struct Account {
 }
 impl Account {
    /// Gets the current account information
+   ///
+   /// # Example
+   ///
+   /// To get your current account information:
+   ///
+   /// ``` no run
+   /// let alpaca = Alpaca::live("KEY_ID", "SECRET").await.unwrap();
+   ///
+   /// let account = Account::get(&alpaca).await.unwrap();
+   /// ```
    pub async fn get(alpaca: &Alpaca) -> Result<Account> {
       let response = alpaca.request(Method::GET, "v2/account")?
          .send().await.context(error::RequestFailed)?;

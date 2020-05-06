@@ -20,5 +20,5 @@ An API for interacting with [Alpaca][alpaca].
 Add this to your `Cargo.toml`:
 
 ```toml
-alpaca-finance = "0.1"
+alpaca-finance = "0.2"
 ```

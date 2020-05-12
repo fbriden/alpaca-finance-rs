@@ -1,4 +1,5 @@
 use reqwest::{ Client, Method, RequestBuilder, Url };
+use serde::Serialize;
 use snafu::ResultExt;
 use std::env;
 
@@ -6,6 +7,19 @@ use crate::{error, Result};
 
 const LIVE_API: &'static str = "https://api.alpaca.markets";
 const PAPER_API: &'static str = "https://paper-api.alpaca.markets";
+
+
+#[derive(Debug, Serialize)]
+struct Authenticate {
+   key_id: String,
+   secret_key: String
+}
+
+#[derive(Debug, Serialize)]
+#[serde(content = "data", rename_all="snake_case", tag = "action")]
+enum ActionMessage {
+   Authenticate(Authenticate),
+}
 
 /// Alpaca contextual information that needs to be supplied to all calls.
 pub struct Alpaca {
@@ -36,10 +50,40 @@ impl Alpaca {
       }
    }
 
+   /// Builds a websocket stream against the configured host
+   /// Handles authentication; errors out if credentials are wrong
+   pub(crate) fn stream(&self) -> (String, String) {
+      // first - update the URL for websockets
+      let mut ws_host = self.host.clone();
+      ws_host.replace_range(..4, "ws");
+      ws_host.push_str("/stream");
+
+      let authenticate = ActionMessage::Authenticate(Authenticate { key_id: self.api_key.clone(), secret_key: self.api_secret.clone() });
+      let message = serde_json::to_string(&authenticate).context(error::InternalJSON).unwrap();
+
+      (ws_host, message)
+   }
+
    /// Creates an object for interacting with the LIVE API
+   ///
+   /// # Example
+   ///
+   /// To get the alpaca context for the live account
+   ///
+   /// ``` no run
+   /// let alpaca = Alpaca::live("KEY_ID", "SECRET").await.unwrap();
+   /// ```
    pub async fn live(api_key_id: &str, api_secret_key: &str) -> Result<Alpaca> { Alpaca::build(true, api_key_id, api_secret_key).await }
 
    /// Creates an object for interacting with the PAPER API
+   ///
+   /// # Example
+   ///
+   /// To get the alpaca context for the paper account
+   ///
+   /// ``` no run
+   /// let alpaca = Alpaca::paper("KEY_ID", "SECRET").await.unwrap();
+   /// ```
    pub async fn paper(api_key_id: &str, api_secret_key: &str) -> Result<Alpaca> { Alpaca::build(false, api_key_id, api_secret_key).await }
 
    /// Internal helper to build up a request to Alpaca with credentials set

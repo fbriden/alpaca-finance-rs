@@ -18,10 +18,10 @@ pub fn to_optional_f64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Opt
    Ok(v.map(|Wrapper(a)| a))   
 }
 
-pub fn to_i32<'de, D: Deserializer<'de>>(deserializer: D) -> Result<i32, D::Error> {
+pub fn to_u32<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u32, D::Error> {
    Ok(match Value::deserialize(deserializer)? {
        Value::String(s) => s.parse().map_err(de::Error::custom)?,
-       Value::Number(num) => num.as_i64().ok_or(de::Error::custom("Invalid number"))? as i32,
+       Value::Number(num) => num.as_u64().ok_or(de::Error::custom("Invalid number"))? as u32,
        _ => return Err(de::Error::custom("wrong type"))
    })
 }
